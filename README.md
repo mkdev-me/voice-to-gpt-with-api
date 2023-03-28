@@ -3,6 +3,13 @@
 
 Voice-to-GPT is a web application that allows users to interact with an AI assistant using voice commands. The application records users' voice input, transcribes it, and sends the transcribed text to OpenAI's GPT-4 for processing. The AI assistant responds with an answer, which is then converted back to speech and played to the user. this version is faster than https://github.com/mkdev-me/voice-to-gpt because use whisper API instead of the free code. But it is not cheap
 
+
+
+https://user-images.githubusercontent.com/13846927/228222749-6261031a-6a4e-449c-9f3d-92df19eff05b.mp4
+
+
+
+
 ## **functionalities:**
 
 * Voice input: Users can speak their questions or commands directly into their microphone.
