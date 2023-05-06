@@ -1,7 +1,7 @@
 import os
 import base64
 import tempfile
-from audio_processing import transcribe_audio, ask_gpt
+from audio_processing import transcribe_audio, ask_gpt, text_to_speech
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
@@ -12,7 +12,7 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 from werkzeug.utils import secure_filename
 app = Flask(__name__, static_folder="static", static_url_path="/")
 
-UPLOAD_FOLDER = '/ruta/donde/deseas/guardar/los/archivos'
+UPLOAD_FOLDER = '/tmp/'
 ALLOWED_EXTENSIONS = {'wav'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -62,8 +62,16 @@ def transcribe():
 
                 # Consulta a GPT con la transcripción
                 answer = ask_gpt(transcription)
-                # Devuelve la respuesta del GPT
-                return jsonify({'transcription': transcription, 'answer': answer})
+
+                # Convierte la respuesta del asistente a audio
+                output_file = os.path.join(app.config['UPLOAD_FOLDER'], 'response.mp3')
+                text_to_speech(answer, output_file)
+
+                # Devuelve la respuesta del GPT y los datos de audio en base64
+                with open(output_file, "rb") as f:
+                    audio_data = base64.b64encode(f.read()).decode('utf-8')
+                
+                return jsonify({'transcription': transcription, 'answer': answer, 'audio_data': audio_data})
 
         return jsonify({'error': 'No audio file received'})
 

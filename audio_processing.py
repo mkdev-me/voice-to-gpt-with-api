@@ -7,8 +7,12 @@ import openai
 import audioop
 import os
 import subprocess
+import requests
+from gtts import gTTS
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
+messages = [{"role": "system", "content": "You are a helpful assistant."}]
+
 
 def transcribe_audio(file):
     file_root, _ = os.path.splitext(file)
@@ -21,17 +25,28 @@ def transcribe_audio(file):
     print(transcript)
     return transcript
 
-def ask_gpt(prompt, max_tokens=300):
+
+def text_to_speech(text, output_file, lang='en'):
+    tts = gTTS(text=text, lang=lang, slow=False)
+    tts.save(output_file)
+
+def ask_gpt(prompt, max_tokens=4000):
     prompt = f"Conversación con un asistente AI:\n{prompt}"
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}], 
         max_tokens=max_tokens,
         n=1,
         stop=None,
         temperature=0.2,
     )
 
-    print (response.choices[0].text.strip())
-    return response.choices[0].text.strip()
+    # Extraer la respuesta del modelo
+    assistant_message = response.choices[0].message['content']
 
+    # Agregar la respuesta del asistente a la lista de mensajes
+    messages.append({"role": "assistant", "content": assistant_message})
+
+    print(assistant_message)
+
+    return assistant_message
